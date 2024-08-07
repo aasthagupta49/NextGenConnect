@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import validator from "validator";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";  // Change from 'bcrypt' to 'bcryptjs'
 import jwt from "jsonwebtoken";
 
 const userSchema = new mongoose.Schema({
@@ -36,7 +36,6 @@ const userSchema = new mongoose.Schema({
     default: Date.now, // Set default to current time
   },
 });
-
 
 // Using Bcrypt to hash the password
 userSchema.pre("save", async function (next) {
