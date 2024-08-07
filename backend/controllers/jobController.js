@@ -1,5 +1,5 @@
 import { catchAsyncError } from "../middleware/catchAsyncError.js";
-import errorHandler from "../middleware/error.js";
+import ErrorHandler from "../middleware/errorHandler.js";
 import { Job } from "../models/jobSchema.js";
 
 //Fetch all the jobs!
@@ -15,7 +15,7 @@ export const getAllJobs = catchAsyncError(async (req, res, next) => {
 export const postJob = catchAsyncError(async (req, res, next) => {
   const role = req.user.role;
   if (role == "Job Seeker") {
-    return next(new errorHandler("Not authorized to post the job !", 400));
+    return next(new ErrorHandler("Not authorized to post the job !", 400));
   }
   const {
     title,
@@ -29,19 +29,19 @@ export const postJob = catchAsyncError(async (req, res, next) => {
     salaryTo,
   } = req.body;
   if(!title || !description || !category || ! country || !city || !location){
-    return next (new errorHandler("Please provide full job details!",400))
+    return next (new ErrorHandler("Please provide full job details!",400))
   }
 
   //yeh validation condition hata di maine!
 
   if ((!salaryFrom || !salaryTo) && !fixedSalary) { //now working precedence error tha () yeh lga diye fix ho gya!
-    return next(new errorHandler("Please either provide fixed salary or range salary !"));
+    return next(new ErrorHandler("Please either provide fixed salary or range salary !"));
   }
   
 
 
   if(salaryFrom && salaryTo && fixedSalary){
-    return next(new errorHandler("Cannot enter fixed salary and ranged salary together !"))
+    return next(new ErrorHandler("Cannot enter fixed salary and ranged salary together !"))
   }
 
   //user ki id get ki database mai jo hai !
@@ -74,7 +74,7 @@ res.status(200).json({
 export const getmyJobs = catchAsyncError(async(req , res ,next)=>{
     const role = req.user.role;
     if (role == "Job Seeker") {
-      return next(new errorHandler("Not authorized to get the resource !", 400));
+      return next(new ErrorHandler("Not authorized to get the resource !", 400));
     }
 const myJobs =  await Job.find({
     postedBy: req.user._id //jiski id postedBy ke equal hai wo job aayengi bs !
@@ -90,12 +90,12 @@ res.status(200).json({
 export const updateJob = catchAsyncError(async(req,res,next)=>{
     const role = req.user.role;
     if (role == "Job Seeker") {
-      return next(new errorHandler("Not authorized to get the resource !", 400));
+      return next(new ErrorHandler("Not authorized to get the resource !", 400));
     }
     const {id} = req.params;
     let job = await Job.findById(id) //jo id params se li wo findBYID me de di !
     if(!job){
-      return next(new errorHandler("Oops! Job not found !" ,404))
+      return next(new ErrorHandler("Oops! Job not found !" ,404))
     }
   job  = await Job.findByIdAndUpdate(id , req.body,{ //request mai jo bhi data araha hai wo daal do !
     new: true,
@@ -114,13 +114,13 @@ export const updateJob = catchAsyncError(async(req,res,next)=>{
 export const deleteJob = catchAsyncError(async(req, res ,next)=>{
   const role = req.user.role;
     if (role == "Job Seeker") {
-      return next(new errorHandler("Not authorized to get the resource !", 400));
+      return next(new ErrorHandler("Not authorized to get the resource !", 400));
     }
     const {id} = req.params; //id nikal li!
 
 let job = await Job.findById(id) //jo id params se li wo findBYID me de di !
     if(!job){
-      return next(new errorHandler("Oops! Job not found !" ,404))
+      return next(new ErrorHandler("Oops! Job not found !" ,404))
     }
     //agar job milgyi then!
     await job.deleteOne()
@@ -136,13 +136,13 @@ export const getSinglejob = catchAsyncError(async(req, res , next)=>{
   try {
     const job  = await Job.findById(id)
     if(!job){
-      return next (new errorHandler("Job not found !", 404))
+      return next (new ErrorHandler("Job not found !", 404))
     }
     res.status(200).json({  //response mai status code and job jo find hue hai wo bhej di!
       sucess: true,
       job
     })
   } catch (error) {
-    return next ( new errorHandler("Invalid details !", 400))
+    return next ( new ErrorHandler("Invalid details !", 400))
   }
 })
