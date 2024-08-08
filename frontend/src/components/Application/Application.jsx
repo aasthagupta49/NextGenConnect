@@ -21,7 +21,7 @@ const Application = () => {
     setResume(resume);
   };
 
-  const { id } = useParams(); //id nikal li!
+  const { id } = useParams();
   const handleApplication = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -35,7 +35,7 @@ const Application = () => {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:8080/api/v1/application/post",
+        "http://localhost:4000/api/v1/application/post",
         formData,
         {
           withCredentials: true,
@@ -50,11 +50,9 @@ const Application = () => {
       setPhone("");
       setAddress("");
       setResume("");
-      
       toast.success(data.message);
       navigateTo("/job/getall");
     } catch (error) {
-      console.log(error)
       toast.error(error.response.data.message);
     }
   };

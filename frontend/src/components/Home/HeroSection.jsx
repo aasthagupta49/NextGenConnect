@@ -1,7 +1,7 @@
 import React from "react";
 import { FaBuilding, FaSuitcase, FaUsers, FaUserPlus } from "react-icons/fa";
 
-function HeroSection() {
+const HeroSection = () => {
   const details = [
     {
       id: 1,
@@ -29,38 +29,38 @@ function HeroSection() {
     },
   ];
   return (
-    <div className="heroSection">
-      <div className="container">
-        <div className="title">
-          <h1>Find a job that suits</h1>
-          <h1>your interest and skills</h1>
-          <p>
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores
-            neque, ad culpa fuga praesentium voluptate eveniet minima iusto ipsa
-            ducimus alias, soluta, dolor aliquam ea quisquam dolorem. Molestias,
-            esse exercitationem.
-          </p>
+    <>
+      <div className="heroSection">
+        <div className="container">
+          <div className="title">
+            <h1>Find a job that suits</h1>
+            <h1>your interests and skills</h1>
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem
+              voluptate repellat modi quidem aliquid eaque ducimus ipsa et,
+              facere mollitia!
+            </p>
+          </div>
+          <div className="image">
+            <img src="/heroS.jpg" alt="hero" />
+          </div>
         </div>
-        <div className="image">
-          <img src="/heroS.jpg" alt="hero" />
-        </div>
-      </div>
-      <div className="details">
-        {details.map((element) => {
-          //details pr loop chalega .map se or ek ek item ki value card mai jake paint hogi!
-          return (
-            <div className="card" key={element.id}>
-              <div className="icon">{element.icon}</div>
-              <div className="content">
-                <p>{element.title}</p>
-                <p>{element.subTitle}</p>
+        <div className="details">
+          {details.map((element) => {
+            return (
+              <div className="card" key={element.id}>
+                <div className="icon">{element.icon}</div>
+                <div className="content">
+                  <p>{element.title}</p>
+                  <p>{element.subTitle}</p>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </>
   );
-}
+};
 
 export default HeroSection;

@@ -7,22 +7,22 @@ import { GiHamburgerMenu } from "react-icons/gi";
 
 const Navbar = () => {
   const [show, setShow] = useState(false);
-  const { isAuthorized, setisAuthorized, user } = useContext(Context);
+  const { isAuthorized, setIsAuthorized, user } = useContext(Context);
   const navigateTo = useNavigate();
 
   const handleLogout = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8080/api/v1/user/logout",
+        "http://localhost:4000/api/v1/user/logout",
         {
           withCredentials: true,
         }
       );
       toast.success(response.data.message);
-      setisAuthorized(false);
+      setIsAuthorized(false);
       navigateTo("/login");
     } catch (error) {
-      toast.error(error.response.data.message), setisAuthorized(true);
+      toast.error(error.response.data.message), setIsAuthorized(true);
     }
   };
 
@@ -30,7 +30,7 @@ const Navbar = () => {
     <nav className={isAuthorized ? "navbarShow" : "navbarHide"}>
       <div className="container">
         <div className="logo">
-          <img src="/careerconnect-white.png" alt="logo" />
+          <img src="/JobZee-logos__white.png" alt="logo" />
         </div>
         <ul className={!show ? "menu" : "show-menu menu"}>
           <li>

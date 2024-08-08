@@ -1,26 +1,27 @@
-import React, { useContext } from "react";
+import React from "react";
+import { useContext } from "react";
 import { Context } from "../../main";
 import { Navigate } from "react-router-dom";
-import HeroSection from "../Home/HeroSection";
-import HowItWorks from "../Home/HowItWorks";
-import PopularCategories from "../Home/PopularCategories";
-import PopularCompanies from "../Home/PopularCompanies"
+import HeroSection from "./HeroSection";
+import HowItWorks from "./HowItWorks";
+import PopularCategories from "./PopularCategories";
+import PopularCompanies from "./PopularCompanies";
 
-
-
-function Home() {
+const Home = () => {
   const { isAuthorized } = useContext(Context);
   if (!isAuthorized) {
-    return <Navigate to={"/login"}></Navigate>;
+    return <Navigate to={"/login"} />;
   }
   return (
-    <section className="homePage page">
-      <HeroSection></HeroSection>
-      <HowItWorks></HowItWorks>
-      <PopularCategories></PopularCategories>
-      <PopularCompanies></PopularCompanies>
-    </section>
+    <>
+      <section className="homePage page">
+        <HeroSection />
+        <HowItWorks />
+        <PopularCategories />
+        <PopularCompanies />
+      </section>
+    </>
   );
-}
+};
 
 export default Home;

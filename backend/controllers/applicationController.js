@@ -1,90 +1,37 @@
-import { catchAsyncError } from "../middleware/catchAsyncError.js";
-import ErrorHandler from "../middleware/errorHandler.js";
+import { catchAsyncErrors } from "../middlewares/catchAsyncError.js";
+import ErrorHandler from "../middlewares/error.js";
 import { Application } from "../models/applicationSchema.js";
+import { Job } from "../models/jobSchema.js";
 import cloudinary from "cloudinary";
-import {Job} from "../models/jobSchema.js"
-export const employerGetAllApplications = catchAsyncError(
-  async (req, res, next) => {
-    const role = req.user.role;
-    if (role == "Job Seeker") {
-      return next(
-        new ErrorHandler("Not authorized to get the resource !", 400)
-      ); 
-    }
-    const { _id } = req.user; //_id for mongodb id getting!
-    const applications = await Application.find({ "employerID.user": _id }); //agar job database mai hai toh!
-    res.status(200).json({
-      sucess: true,
-      applications,
-    });
-  }
-);
-export const jobSeekerGetAllApplications = catchAsyncError(
-  async (req, res, next) => {
-    const { role } = req.user.role;
-    if (role == "Employer") {
-      return next(
-        new ErrorHandler("Not authorized to get the resource !", 400)
-      );
-    }
-    const { _id } = req.user; //_id for mongodb id getting!
-    const applications = await Application.find({ "applicantID.user": _id }); //agar job database mai hai toh!
-    res.status(200).json({
-      sucess: true,
-      applications,
-    });
-  }
-);
 
-export const jobSeekerDeleteApplication = catchAsyncError(
-  async (req, res, next) => {
-    const role = req.user.role;
-    if (role == "Employer") {
-      return next(
-        new ErrorHandler("Not authorized to get the resource !", 400)
-      );
-    }
-    const { id } = req.params;
-    const application = await Application.findById(id);
-    if (!application) {
-      return next(new ErrorHandler("Application not found !"));
-    }
-    await application.deleteOne();
-    res.status(200).json({
-      sucess: true,
-      message: "Application delete sucessfully !",
-    });
-  }
-);
-
-// to post application on cloudinary!
-export const postApplication = catchAsyncError(async (req, res, next) => {
-  const role = req.user.role;
-  if (role == "Employer") {
-    return next(new ErrorHandler("Not authorized to get the resource !", 400));
+export const postApplication = catchAsyncErrors(async (req, res, next) => {
+  const { role } = req.user;
+  if (role === "Employer") {
+    return next(
+      new ErrorHandler("Employer not allowed to access this resource.", 400)
+    );
   }
   if (!req.files || Object.keys(req.files).length === 0) {
-    //agar file upld hi nhi ki toh!
-    return next(new ErrorHandler("Resume file is required !"));
+    return next(new ErrorHandler("Resume File Required!", 400));
   }
+
   const { resume } = req.files;
   const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
   if (!allowedFormats.includes(resume.mimetype)) {
-    //mimetype extension type agar yeh nhi hua toh!
     return next(
-      new ErrorHandler("Invalid file type. Please upload PNG, JPG, WEBP !", 400)
+      new ErrorHandler("Invalid file type. Please upload a PNG file.", 400)
     );
   }
   const cloudinaryResponse = await cloudinary.uploader.upload(
-    //uploader.upload for upload file in cloudinary!
     resume.tempFilePath
   );
-  if (!cloudinaryResponse || cloudinary.error) {
+
+  if (!cloudinaryResponse || cloudinaryResponse.error) {
     console.error(
-      "Cloudinary error : ",
-      cloudinary.error || "Unknown error bhaiyaa !"
+      "Cloudinary Error:",
+      cloudinaryResponse.error || "Unknown Cloudinary error"
     );
-    return next(new ErrorHandler("Failed to upload resume !", 500));
+    return next(new ErrorHandler("Failed to upload Resume to Cloudinary", 500));
   }
   const { name, email, coverLetter, phone, address, jobId } = req.body;
   const applicantID = {
@@ -92,13 +39,11 @@ export const postApplication = catchAsyncError(async (req, res, next) => {
     role: "Job Seeker",
   };
   if (!jobId) {
-    //agar job find nhi hue toh!
-    return next(new ErrorHandler("Job not found !", 404));
+    return next(new ErrorHandler("Job not found!", 404));
   }
   const jobDetails = await Job.findById(jobId);
   if (!jobDetails) {
-    //agar detail fetch nhi hue toh!
-    return next(new ErrorHandler("Job not found !", 404));
+    return next(new ErrorHandler("Job not found!", 404));
   }
 
   const employerID = {
@@ -115,7 +60,7 @@ export const postApplication = catchAsyncError(async (req, res, next) => {
     !employerID ||
     !resume
   ) {
-    return next(new ErrorHandler("Please fill all the details !"));
+    return next(new ErrorHandler("Please fill all fields.", 400));
   }
   const application = await Application.create({
     name,
@@ -125,14 +70,69 @@ export const postApplication = catchAsyncError(async (req, res, next) => {
     address,
     applicantID,
     employerID,
-    resume:{
+    resume: {
       public_id: cloudinaryResponse.public_id,
       url: cloudinaryResponse.secure_url,
-    }
+    },
   });
   res.status(200).json({
-    sucess: true,
-    message: "Application submitted sucessfully !",
+    success: true,
+    message: "Application Submitted!",
     application,
-  })
+  });
 });
+
+export const employerGetAllApplications = catchAsyncErrors(
+  async (req, res, next) => {
+    const { role } = req.user;
+    if (role === "Job Seeker") {
+      return next(
+        new ErrorHandler("Job Seeker not allowed to access this resource.", 400)
+      );
+    }
+    const { _id } = req.user;
+    const applications = await Application.find({ "employerID.user": _id });
+    res.status(200).json({
+      success: true,
+      applications,
+    });
+  }
+);
+
+export const jobseekerGetAllApplications = catchAsyncErrors(
+  async (req, res, next) => {
+    const { role } = req.user;
+    if (role === "Employer") {
+      return next(
+        new ErrorHandler("Employer not allowed to access this resource.", 400)
+      );
+    }
+    const { _id } = req.user;
+    const applications = await Application.find({ "applicantID.user": _id });
+    res.status(200).json({
+      success: true,
+      applications,
+    });
+  }
+);
+
+export const jobseekerDeleteApplication = catchAsyncErrors(
+  async (req, res, next) => {
+    const { role } = req.user;
+    if (role === "Employer") {
+      return next(
+        new ErrorHandler("Employer not allowed to access this resource.", 400)
+      );
+    }
+    const { id } = req.params;
+    const application = await Application.findById(id);
+    if (!application) {
+      return next(new ErrorHandler("Application not found!", 404));
+    }
+    await application.deleteOne();
+    res.status(200).json({
+      success: true,
+      message: "Application Deleted!",
+    });
+  }
+);

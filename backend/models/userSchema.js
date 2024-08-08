@@ -1,62 +1,60 @@
 import mongoose from "mongoose";
 import validator from "validator";
-import bcrypt from "bcryptjs";  // Change from 'bcrypt' to 'bcryptjs'
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
-    minLength: [4, "Name must contain more than 4 characters"],
-    maxLength: [40, "Name cannot contain more than 40 characters"],
+    required: [true, "Please enter your Name!"],
+    minLength: [3, "Name must contain at least 3 Characters!"],
+    maxLength: [30, "Name cannot exceed 30 Characters!"],
   },
   email: {
     type: String,
-    required: [true, "Provide your email"],
-    validate: [validator.isEmail, "Please enter a correct email"],
+    required: [true, "Please enter your Email!"],
+    validate: [validator.isEmail, "Please provide a valid Email!"],
   },
   phone: {
     type: Number,
-    required: [true, "Provide your phone number"],
+    required: [true, "Please enter your Phone Number!"],
   },
   password: {
     type: String,
-    required: [true, "Enter your password"],
-    minLength: [8, "Password must contain a minimum of 8 characters"],
-    maxLength: [25, "Password cannot contain more than 25 characters"],
-    select: false, // Hide password when retrieving user
+    required: [true, "Please provide a Password!"],
+    minLength: [8, "Password must contain at least 8 characters!"],
+    maxLength: [32, "Password cannot exceed 32 characters!"],
+    select: false,
   },
   role: {
     type: String,
-    required: [true, "Provide your role!"],
-    enum: ["Job Seeker", "Employer"], // Only "Job Seeker" or "Employer"
+    required: [true, "Please select a role"],
+    enum: ["Job Seeker", "Employer"],
   },
-  createAt: {
+  createdAt: {
     type: Date,
-    default: Date.now, // Set default to current time
+    default: Date.now,
   },
 });
 
-// Using Bcrypt to hash the password
+
+//ENCRYPTING THE PASSWORD WHEN THE USER REGISTERS OR MODIFIES HIS PASSWORD
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
-  } else {
-    this.password = await bcrypt.hash(this.password, 10);
   }
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
-// Comparing the user-entered password to the stored password using BCRYPT
+//COMPARING THE USER PASSWORD ENTERED BY USER WITH THE USER SAVED PASSWORD
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// JWT Token Generating here
-userSchema.methods.getJWTtoken = function () {
+//GENERATING A JWT TOKEN WHEN A USER REGISTERS OR LOGINS, IT DEPENDS ON OUR CODE THAT WHEN DO WE NEED TO GENERATE THE JWT TOKEN WHEN THE USER LOGIN OR REGISTER OR FOR BOTH. 
+userSchema.methods.getJWTToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRE,
   });
 };
 
-const User = mongoose.model("User", userSchema);
-export default User;
+export const User = mongoose.model("User", userSchema);

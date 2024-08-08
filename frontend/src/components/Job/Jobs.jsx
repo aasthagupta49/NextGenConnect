@@ -10,7 +10,7 @@ const Jobs = () => {
   useEffect(() => {
     try {
       axios
-        .get("http://localhost:8080/api/v1/job/getall", {
+        .get("http://localhost:4000/api/v1/job/getall", {
           withCredentials: true,
         })
         .then((res) => {
@@ -27,18 +27,16 @@ const Jobs = () => {
   return (
     <section className="jobs page">
       <div className="container">
-        <h3>ALL AVAILABLE JOBS</h3>
+        <h1>ALL AVAILABLE JOBS</h1>
         <div className="banner">
           {jobs.jobs &&
             jobs.jobs.map((element) => {
-             //agar job ki details dekhni ho toh {`/job/${element._id}`} is page pr redirect krega!
               return (
                 <div className="card" key={element._id}>
                   <p>{element.title}</p>
                   <p>{element.category}</p>
                   <p>{element.country}</p>
-                  <Link to={`/job/${element._id}`}>Job Details</Link> 
-                  
+                  <Link to={`/job/${element._id}`}>Job Details</Link>
                 </div>
               );
             })}

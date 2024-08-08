@@ -12,18 +12,13 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
 
-  const { isAuthorized, setisAuthorized } = useContext(Context);
+  const { isAuthorized, setIsAuthorized } = useContext(Context);
 
   const handleLogin = async (e) => {
-    //this condition is change!
-    if (!email || !password || !role) {
-      toast.error("All fields are required !");
-      return;
-    }
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "http://localhost:8080/api/v1/user/login",
+        "http://localhost:4000/api/v1/user/login",
         { email, password, role },
         {
           headers: {
@@ -36,9 +31,9 @@ const Login = () => {
       setEmail("");
       setPassword("");
       setRole("");
-      setisAuthorized(true);
+      setIsAuthorized(true);
     } catch (error) {
-      toast.error(error.response.data.message || "An error occurred !"); //an error occurend is chnage!
+      toast.error(error.response.data.message);
     }
   };
 
@@ -51,8 +46,8 @@ const Login = () => {
       <section className="authPage">
         <div className="container">
           <div className="header">
-            <img src="/careerconnect-black.png" alt="logo" />
-            <h5>Login to your account</h5>
+            <img src="/JobZeelogo.png" alt="logo" />
+            <h3>Login to your account</h3>
           </div>
           <form>
             <div className="inputTag">
@@ -60,9 +55,8 @@ const Login = () => {
               <div>
                 <select value={role} onChange={(e) => setRole(e.target.value)}>
                   <option value="">Select Role</option>
-                  <option value="Job Seeker">Job Seeker</option>
                   <option value="Employer">Employer</option>
-                  
+                  <option value="Job Seeker">Job Seeker</option>
                 </select>
                 <FaRegUser />
               </div>
@@ -72,7 +66,7 @@ const Login = () => {
               <div>
                 <input
                   type="email"
-                  placeholder="Enter your email address"
+                  placeholder="zk@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -84,7 +78,7 @@ const Login = () => {
               <div>
                 <input
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder="Your Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />

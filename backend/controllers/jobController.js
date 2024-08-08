@@ -1,21 +1,21 @@
-import { catchAsyncError } from "../middleware/catchAsyncError.js";
-import ErrorHandler from "../middleware/errorHandler.js";
+import { catchAsyncErrors } from "../middlewares/catchAsyncError.js";
 import { Job } from "../models/jobSchema.js";
+import ErrorHandler from "../middlewares/error.js";
 
-//Fetch all the jobs!
-export const getAllJobs = catchAsyncError(async (req, res, next) => {
+export const getAllJobs = catchAsyncErrors(async (req, res, next) => {
   const jobs = await Job.find({ expired: false });
   res.status(200).json({
-    sucess: true,
+    success: true,
     jobs,
   });
 });
 
-//Create a jobs!
-export const postJob = catchAsyncError(async (req, res, next) => {
-  const role = req.user.role;
-  if (role == "Job Seeker") {
-    return next(new ErrorHandler("Not authorized to post the job !", 400));
+export const postJob = catchAsyncErrors(async (req, res, next) => {
+  const { role } = req.user;
+  if (role === "Job Seeker") {
+    return next(
+      new ErrorHandler("Job Seeker not allowed to access this resource.", 400)
+    );
   }
   const {
     title,
@@ -28,26 +28,26 @@ export const postJob = catchAsyncError(async (req, res, next) => {
     salaryFrom,
     salaryTo,
   } = req.body;
-  if(!title || !description || !category || ! country || !city || !location){
-    return next (new ErrorHandler("Please provide full job details!",400))
+
+  if (!title || !description || !category || !country || !city || !location) {
+    return next(new ErrorHandler("Please provide full job details.", 400));
   }
 
-  //yeh validation condition hata di maine!
-
-  if ((!salaryFrom || !salaryTo) && !fixedSalary) { //now working precedence error tha () yeh lga diye fix ho gya!
-    return next(new ErrorHandler("Please either provide fixed salary or range salary !"));
-  }
-  
-
-
-  if(salaryFrom && salaryTo && fixedSalary){
-    return next(new ErrorHandler("Cannot enter fixed salary and ranged salary together !"))
+  if ((!salaryFrom || !salaryTo) && !fixedSalary) {
+    return next(
+      new ErrorHandler(
+        "Please either provide fixed salary or ranged salary.",
+        400
+      )
+    );
   }
 
-  //user ki id get ki database mai jo hai !
+  if (salaryFrom && salaryTo && fixedSalary) {
+    return next(
+      new ErrorHandler("Cannot Enter Fixed and Ranged Salary together.", 400)
+    );
+  }
   const postedBy = req.user._id;
-
-  //yaha database mai create and save ho rhi hai !
   const job = await Job.create({
     title,
     description,
@@ -59,90 +59,82 @@ export const postJob = catchAsyncError(async (req, res, next) => {
     salaryFrom,
     salaryTo,
     postedBy,
-
-  })
-  //response chla gya !
-res.status(200).json({
-    sucess:true,
-    message:"Job posted sucessfully !",
+  });
+  res.status(200).json({
+    success: true,
+    message: "Job Posted Successfully!",
     job,
-})
-
+  });
 });
 
-//employer ki posted all job fetch here !
-export const getmyJobs = catchAsyncError(async(req , res ,next)=>{
-    const role = req.user.role;
-    if (role == "Job Seeker") {
-      return next(new ErrorHandler("Not authorized to get the resource !", 400));
-    }
-const myJobs =  await Job.find({
-    postedBy: req.user._id //jiski id postedBy ke equal hai wo job aayengi bs !
+export const getMyJobs = catchAsyncErrors(async (req, res, next) => {
+  const { role } = req.user;
+  if (role === "Job Seeker") {
+    return next(
+      new ErrorHandler("Job Seeker not allowed to access this resource.", 400)
+    );
+  }
+  const myJobs = await Job.find({ postedBy: req.user._id });
+  res.status(200).json({
+    success: true,
+    myJobs,
+  });
+});
 
-})
-res.status(200).json({
-    sucess:true,
-    myJobs, //jo jobs aayegi wo response mai chli jayegi!
-})
-})
-
-//to update the posted job !
-export const updateJob = catchAsyncError(async(req,res,next)=>{
-    const role = req.user.role;
-    if (role == "Job Seeker") {
-      return next(new ErrorHandler("Not authorized to get the resource !", 400));
-    }
-    const {id} = req.params;
-    let job = await Job.findById(id) //jo id params se li wo findBYID me de di !
-    if(!job){
-      return next(new ErrorHandler("Oops! Job not found !" ,404))
-    }
-  job  = await Job.findByIdAndUpdate(id , req.body,{ //request mai jo bhi data araha hai wo daal do !
+export const updateJob = catchAsyncErrors(async (req, res, next) => {
+  const { role } = req.user;
+  if (role === "Job Seeker") {
+    return next(
+      new ErrorHandler("Job Seeker not allowed to access this resource.", 400)
+    );
+  }
+  const { id } = req.params;
+  let job = await Job.findById(id);
+  if (!job) {
+    return next(new ErrorHandler("OOPS! Job not found.", 404));
+  }
+  job = await Job.findByIdAndUpdate(id, req.body, {
     new: true,
     runValidators: true,
-    useFindAndModify: false
-  }) 
+    useFindAndModify: false,
+  });
   res.status(200).json({
-    sucess: true,
-    message: "Job Updated sucessfully !",
-    job,
-  })
-})
+    success: true,
+    message: "Job Updated!",
+  });
+});
 
-//Deleting the job!
-
-export const deleteJob = catchAsyncError(async(req, res ,next)=>{
-  const role = req.user.role;
-    if (role == "Job Seeker") {
-      return next(new ErrorHandler("Not authorized to get the resource !", 400));
-    }
-    const {id} = req.params; //id nikal li!
-
-let job = await Job.findById(id) //jo id params se li wo findBYID me de di !
-    if(!job){
-      return next(new ErrorHandler("Oops! Job not found !" ,404))
-    }
-    //agar job milgyi then!
-    await job.deleteOne()
-    res.status(200).json({
-      sucess: true,
-      message: "Job delete sucessfully !"
-    })
-})
-
-
-export const getSinglejob = catchAsyncError(async(req, res , next)=>{
-  const {id} = req.params
-  try {
-    const job  = await Job.findById(id)
-    if(!job){
-      return next (new ErrorHandler("Job not found !", 404))
-    }
-    res.status(200).json({  //response mai status code and job jo find hue hai wo bhej di!
-      sucess: true,
-      job
-    })
-  } catch (error) {
-    return next ( new ErrorHandler("Invalid details !", 400))
+export const deleteJob = catchAsyncErrors(async (req, res, next) => {
+  const { role } = req.user;
+  if (role === "Job Seeker") {
+    return next(
+      new ErrorHandler("Job Seeker not allowed to access this resource.", 400)
+    );
   }
-})
+  const { id } = req.params;
+  const job = await Job.findById(id);
+  if (!job) {
+    return next(new ErrorHandler("OOPS! Job not found.", 404));
+  }
+  await job.deleteOne();
+  res.status(200).json({
+    success: true,
+    message: "Job Deleted!",
+  });
+});
+
+export const getSingleJob = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const job = await Job.findById(id);
+    if (!job) {
+      return next(new ErrorHandler("Job not found.", 404));
+    }
+    res.status(200).json({
+      success: true,
+      job,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(`Invalid ID / CastError`, 404));
+  }
+});

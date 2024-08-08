@@ -16,13 +16,13 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
 
-  const { isAuthorized, setisAuthorized, user, setUser } = useContext(Context);
+  const { isAuthorized, setIsAuthorized, user, setUser } = useContext(Context);
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "http://localhost:8080/api/v1/user/register",
+        "http://localhost:4000/api/v1/user/register",
         { name, phone, email, role, password },
         {
           headers: {
@@ -37,7 +37,7 @@ const Register = () => {
       setPassword("");
       setPhone("");
       setRole("");
-      setisAuthorized(true);
+      setIsAuthorized(true);
     } catch (error) {
       toast.error(error.response.data.message);
     }
@@ -62,9 +62,8 @@ const Register = () => {
               <div>
                 <select value={role} onChange={(e) => setRole(e.target.value)}>
                   <option value="">Select Role</option>
-                  <option value="Job Seeker">Job Seeker</option>
                   <option value="Employer">Employer</option>
-                  
+                  <option value="Job Seeker">Job Seeker</option>
                 </select>
                 <FaRegUser />
               </div>
@@ -74,7 +73,7 @@ const Register = () => {
               <div>
                 <input
                   type="text"
-                  placeholder="Enter your name"
+                  placeholder="Zeeshan"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
@@ -86,7 +85,7 @@ const Register = () => {
               <div>
                 <input
                   type="email"
-                  placeholder="Enter your email address"
+                  placeholder="zk@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -98,7 +97,7 @@ const Register = () => {
               <div>
                 <input
                   type="number"
-                  placeholder="Enter your phone number"
+                  placeholder="12345678"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                 />
@@ -110,7 +109,7 @@ const Register = () => {
               <div>
                 <input
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder="Your Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />

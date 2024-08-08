@@ -8,17 +8,18 @@ const JobDetails = () => {
   const [job, setJob] = useState({});
   const navigateTo = useNavigate();
 
-  const { isAuthorized, user } = useContext(Context); //context provider se le liya auth!
+  const { isAuthorized, user } = useContext(Context);
 
   useEffect(() => {
-    axios.get(`http://localhost:8080/api/v1/job/${id}`, {  //get kr liya job ko by id!
+    axios
+      .get(`http://localhost:4000/api/v1/job/${id}`, {
         withCredentials: true,
       })
       .then((res) => {
-        setJob(res.data.job); //response se data nikal liya!
+        setJob(res.data.job);
       })
       .catch((error) => {
-        navigateTo("/notfound"); //error then redirect to notfound page!
+        navigateTo("/notfound");
       });
   }, []);
 
