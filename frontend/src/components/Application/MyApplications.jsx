@@ -72,11 +72,14 @@ const MyApplications = () => {
     <section className="my_applications page">
       {user && user.role === "Job Seeker" ? (
         <div className="container">
+          <center>
           <h1>My Applications</h1>
+          </center>
           {applications.length <= 0 ? (
             <>
               {" "}
-              <h4>No Applications Found</h4>{" "}
+              <center>
+              <h4>No Applications Found</h4></center>{" "}
             </>
           ) : (
             applications.map((element) => {
@@ -93,10 +96,14 @@ const MyApplications = () => {
         </div>
       ) : (
         <div className="container">
+          <center>
           <h1>Applications From Job Seekers</h1>
+          </center>
           {applications.length <= 0 ? (
             <>
+            <center>
               <h4>No Applications Found</h4>
+              </center>
             </>
           ) : (
             applications.map((element) => {
