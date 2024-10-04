@@ -31,7 +31,7 @@ To get a local copy up and running follow these simple steps.
 
 1. Clone the repo:
    ```sh
-   git clone https://github.com/exclusiveabhi/react-job-portal.git
+   https://github.com/aasthagupta49/NextGenConnect.git
    ```
 2. Install NPM packages:
    ```sh
