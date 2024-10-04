@@ -16,6 +16,7 @@ import MyApplications from "./components/Application/MyApplications";
 import PostJob from "./components/Job/PostJob";
 import NotFound from "./components/NotFound/NotFound";
 import MyJobs from "./components/Job/MyJobs";
+import AlumniConnect from "./components/Alumni Connect/AlumniConnect";
 
 const App = () => {
   const { isAuthorized, setIsAuthorized, setUser } = useContext(Context);
@@ -52,6 +53,7 @@ const App = () => {
           <Route path="/job/post" element={<PostJob />} />
           <Route path="/job/me" element={<MyJobs />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/alumni-connect" element={<AlumniConnect />} />
         </Routes>
         <Footer />
         <Toaster />
