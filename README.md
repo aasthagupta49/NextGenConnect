@@ -77,4 +77,4 @@ Contributions are what make the open-source community such an amazing place to l
 
 ## Contact
 
-Aastha Gupta - [GitHub][(https://github.com/exclusiveabhi](https://github.com/aasthagupta49)
+Aastha Gupta - [GitHub][((https://github.com/aasthagupta49)](https://github.com/aasthagupta49)
